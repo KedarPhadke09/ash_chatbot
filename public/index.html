@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ash Ketchum | Pokémon Specialist & Voice Chatbot</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%23e63946'/><path d='M2,50 A48,48 0 0,0 98,50 Z' fill='%23ffffff'/><line x1='2' y1='50' x2='98' y2='50' stroke='%231e293b' stroke-width='8'/><circle cx='50' cy='50' r='16' fill='%23ffffff' stroke='%231e293b' stroke-width='8'/><circle cx='50' cy='50' r='8' fill='%23ffffff'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Glow & Grid -->
+  <div class="bg-fx">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="pokeball-bg-watermark"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-badge">
+          <div class="pokeball-icon mini spinning"></div>
+          <span class="region-tag">PALLET TOWN // WORLD MONARCH</span>
+        </div>
+        <h1 class="brand-title">ASH <span>KETCHUM</span></h1>
+        <p class="brand-subtitle">Pokémon Master & Competitive Lore Specialist</p>
+      </div>
+
+      <div class="header-actions">
+        <!-- Voice Mode Status Indicator -->
+        <div class="voice-indicator" id="voiceIndicator">
+          <span class="dot"></span>
+          <span id="voiceStatusText">Voice Ready</span>
+        </div>
+
+        <button class="icon-btn" id="settingsBtn" title="Voice & Model Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <main class="main-layout">
+      <!-- Left Column: Ash Hero & Pokédex Live Scanner -->
+      <aside class="side-panel">
+        <!-- Ash Live Avatar Card -->
+        <div class="ash-hero-card">
+          <div class="avatar-stage">
+            <div class="avatar-ring" id="avatarRing"></div>
+            <!-- Ash Ketchum Illustrated Avatar -->
+            <div class="ash-avatar-wrapper" id="ashAvatar">
+              <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/25.gif" alt="Pikachu" class="pikachu-companion" title="Ash's Pikachu">
+              <div class="ash-portrait">
+                <svg viewBox="0 0 100 100" class="ash-svg-face">
+                  <!-- Cap Back / Hair -->
+                  <path d="M15,55 Q10,75 25,75 Q20,60 30,55 Z" fill="#1e1b18" />
+                  <path d="M85,55 Q90,75 75,75 Q80,60 70,55 Z" fill="#1e1b18" />
+                  <!-- Face Shape -->
+                  <path d="M28,45 Q50,90 72,45 Q70,30 50,30 Q30,30 28,45 Z" fill="#fbd3b6" />
+                  <!-- Z Cheek Marks (Ash's signature lightning cheeks) -->
+                  <path d="M30,54 L36,54 L32,58 L38,58" stroke="#d97706" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                  <path d="M70,54 L64,54 L68,58 L62,58" stroke="#d97706" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                  <!-- Eyes -->
+                  <ellipse cx="38" cy="46" rx="3.5" ry="5.5" fill="#2d3748" />
+                  <ellipse cx="62" cy="46" rx="3.5" ry="5.5" fill="#2d3748" />
+                  <circle cx="39" cy="44" r="1.2" fill="#ffffff" />
+                  <circle cx="63" cy="44" r="1.2" fill="#ffffff" />
+                  <!-- Eyebrows (Determined) -->
+                  <path d="M33,40 Q40,38 43,42" stroke="#1e1b18" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+                  <path d="M67,40 Q60,38 57,42" stroke="#1e1b18" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+                  <!-- Mouth (Animated when speaking) -->
+                  <path id="ashMouth" d="M44,61 Q50,67 56,61" stroke="#b91c1c" stroke-width="2" stroke-linecap="round" fill="#b91c1c"/>
+                  <!-- Ash's Iconic Red & White Cap -->
+                  <path d="M20,38 Q50,15 80,38 Q88,32 75,20 Q50,10 25,20 Q12,32 20,38 Z" fill="#e63946" />
+                  <path d="M30,32 Q50,22 70,32 L68,36 Q50,26 32,36 Z" fill="#ffffff" />
+                  <!-- Cap Visor / Brim -->
+                  <path d="M16,36 Q50,44 84,36 Q92,38 78,43 Q50,49 22,43 Q8,38 16,36 Z" fill="#e63946" stroke="#b91c1c" stroke-width="1" />
+                  <!-- Pokéball semi-symbol on cap -->
+                  <circle cx="50" cy="27" r="4" fill="#ffffff" stroke="#1e293b" stroke-width="1"/>
+                  <circle cx="50" cy="27" r="1.5" fill="#1e293b"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Voice Sound Wave Equalizer -->
+            <div class="audio-wave-bars" id="audioWave">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+
+          <div class="ash-meta">
+            <h3 class="ash-name">Ash Ketchum</h3>
+            <span class="trainer-class">Pallet Town Champion</span>
+            <p class="ash-quote" id="ashQuote">"There's no limit to what you and your Pokémon can achieve together!"</p>
+          </div>
+
+          <!-- Voice Quick Toggle Controls -->
+          <div class="voice-controls-bar">
+            <button class="voice-mode-toggle" id="handsFreeBtn" title="Toggle Hands-Free Continuous Voice Conversation">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+              </svg>
+              <span id="handsFreeLabel">Hands-Free: OFF</span>
+            </button>
+            <button class="voice-mute-toggle" id="muteSpeechBtn" title="Mute Ash's voice output">
+              <svg id="volumeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Pokédex Scanner Card -->
+        <div class="pokedex-card" id="pokedexCard">
+          <div class="pokedex-card-header">
+            <div class="pokedex-lens">
+              <span class="lens-glow"></span>
+            </div>
+            <div class="pokedex-lights">
+              <span class="led red"></span>
+              <span class="led yellow"></span>
+              <span class="led green"></span>
+            </div>
+            <span class="pokedex-label">ROTOM-DEX SCANNER</span>
+          </div>
+
+          <!-- Empty State -->
+          <div class="pokedex-empty" id="pokedexEmpty">
+            <div class="pokeball-hologram"></div>
+            <p>Ask about any Pokémon to scan its live battle data, animated sprite, and cry!</p>
+            <div class="sample-scans">
+              <button class="chip" onclick="quickAsk('Tell me everything about Gengar')">Gengar</button>
+              <button class="chip" onclick="quickAsk('Analyze Charizard stats and competitive build')">Charizard</button>
+              <button class="chip" onclick="quickAsk('Break down Greninja and Ash-Greninja')">Greninja</button>
+            </div>
+          </div>
+
+          <!-- Active Pokémon Data Display -->
+          <div class="pokedex-content hidden" id="pokedexContent">
+            <div class="poke-hero">
+              <div class="sprite-container">
+                <img id="pokeSprite" src="" alt="Pokemon Sprite" class="poke-animated-sprite">
+                <button class="shiny-toggle-btn" id="shinyToggleBtn" title="Toggle Shiny Sprite">
+                  ✨ Shiny
+                </button>
+              </div>
+              <div class="poke-identity">
+                <div class="poke-id" id="pokeId">#000</div>
+                <h4 class="poke-title" id="pokeName">Pokemon</h4>
+                <div class="poke-genus" id="pokeGenus">Species</div>
+                <div class="poke-types" id="pokeTypes">
+                  <!-- Type Badges Injected Here -->
+                </div>
+                <!-- Play Official Cry Button -->
+                <button class="cry-play-btn" id="playCryBtn" title="Play official Pokémon sound cry">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  </svg>
+                  <span>Play Cry</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="poke-metrics">
+              <div class="metric-box">
+                <span class="metric-lbl">HEIGHT</span>
+                <span class="metric-val" id="pokeHeight">0.0 m</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-lbl">WEIGHT</span>
+                <span class="metric-val" id="pokeWeight">0.0 kg</span>
+              </div>
+              <div class="metric-box">
+                <span class="metric-lbl">BASE STAT TOTAL</span>
+                <span class="metric-val highlight" id="pokeBst">0</span>
+              </div>
+            </div>
+
+            <!-- Base Stats Chart -->
+            <div class="stats-section">
+              <div class="section-title">BASE STAT RADAR</div>
+              <div class="stats-list" id="statsList">
+                <!-- Stat bars dynamically injected -->
+              </div>
+            </div>
+
+            <!-- Abilities -->
+            <div class="abilities-section">
+              <span class="section-title">ABILITIES:</span>
+              <div class="ability-tags" id="abilityTags"></div>
+            </div>
+
+            <!-- Lore Flavor Text -->
+            <p class="poke-flavor" id="pokeFlavor"></p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Right Column: Interactive Chat & Voice Console -->
+      <section class="chat-section">
+        <!-- Quick Starter Prompts -->
+        <div class="quick-prompts-bar">
+          <span class="qp-label">Nerd Topics:</span>
+          <div class="qp-scroll">
+            <button class="qp-pill" onclick="quickAsk('What are the best competitive movesets for Gengar in Gen 9?')">⚔️ Gengar Moveset</button>
+            <button class="qp-pill" onclick="quickAsk('Why is Steel and Fairy considered the best defensive typing?')">🛡️ Steel/Fairy Typing</button>
+            <button class="qp-pill" onclick="quickAsk('What was your exact Masters Eight championship team and strategy?')">🏆 Masters Eight Team</button>
+            <button class="qp-pill" onclick="quickAsk('How do IVs, EVs, and Natures affect damage calculations?')">📊 IVs/EVs Guide</button>
+            <button class="qp-pill" onclick="quickAsk('Explain the Kalos Bond Phenomenon with Ash-Greninja!')">🐸 Ash-Greninja Lore</button>
+            <button class="qp-pill" onclick="quickAsk('What are the shiny odds and how does the Masuda breeding method work?')">✨ Shiny Odds & Masuda</button>
+          </div>
+        </div>
+
+        <!-- Chat History Scrollbox -->
+        <div class="chat-history" id="chatHistory">
+          <!-- Ash Initial Message -->
+          <div class="chat-bubble ash-msg">
+            <div class="sender-avatar">
+              <div class="pokeball-icon tiny"></div>
+            </div>
+            <div class="bubble-content">
+              <div class="bubble-header">
+                <strong>Ash Ketchum</strong>
+                <span class="time-stamp">Just now</span>
+              </div>
+              <p>Hey there, trainer! I'm Ash Ketchum from Pallet Town, and I've traveled through Kanto, Johto, Hoenn, Sinnoh, Unova, Kalos, Alola, and Galar all the way to becoming the World Monarch!</p>
+              <p>Ask me <strong>anything</strong> about Pokémon! Type match-ups, base stats, competitive battle spreads, anime moments, shiny hunting, or evolution lore. You can talk to me directly with your voice using the microphone below!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Voice Live Transcript Bar (shown when listening) -->
+        <div class="voice-transcript-banner hidden" id="voiceTranscriptBanner">
+          <div class="pulsing-mic-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </div>
+          <div class="transcript-text" id="liveTranscriptText">Listening for your Pokémon question...</div>
+        </div>
+
+        <!-- Chat Input Area -->
+        <div class="input-console">
+          <form class="input-form" id="chatForm">
+            <!-- Push to Talk / Mic Button -->
+            <button type="button" class="mic-btn" id="micBtn" title="Hold to Talk or Click to start voice input">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+              </svg>
+            </button>
+
+            <textarea 
+              id="userInput" 
+              class="chat-textarea" 
+              placeholder="Ask Ash any Pokémon question, or tap the mic to speak..." 
+              rows="1"
+              autocomplete="off"
+            ></textarea>
+
+            <button type="submit" class="send-btn" id="sendBtn" title="Send message">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+          </form>
+
+          <div class="input-footer">
+            <span class="voice-tip">🎙️ Tip: Speak clearly into your microphone, or toggle <strong>Hands-Free Mode</strong> for continuous voice chat!</span>
+            <span class="pokedex-sync">⚡ PokéAPI Gen 1-9 Connected</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop hidden" id="settingsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="pokeball-icon mini"></div>
+          <h3>Trainer & Voice Settings</h3>
+        </div>
+        <button class="close-btn" id="closeSettingsBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Gemini API Key Section -->
+        <div class="setting-group">
+          <label class="setting-label" for="apiKeyInput">
+            <span>Google Gemini API Key</span>
+            <span class="sub-label">(Enables limitless custom LLM intelligence)</span>
+          </label>
+          <input 
+            type="password" 
+            id="apiKeyInput" 
+            class="setting-input" 
+            placeholder="AIzaSy... (Leave empty to use built-in offline brain or server key)"
+          />
+          <p class="setting-hint">Your API key is saved locally in your browser. Get one free at <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+        </div>
+
+        <!-- Voice Selector Section -->
+        <div class="setting-group">
+          <label class="setting-label" for="voiceSelect">Ash's Voice Preset</label>
+          <select id="voiceSelect" class="setting-input select"></select>
+        </div>
+
+        <!-- Voice Pitch Slider -->
+        <div class="setting-group">
+          <div class="slider-header">
+            <label class="setting-label" for="pitchSlider">Ash Voice Pitch</label>
+            <span class="slider-value" id="pitchVal">1.25x (Energetic Boyish)</span>
+          </div>
+          <input type="range" id="pitchSlider" min="0.5" max="2.0" step="0.05" value="1.25" class="range-slider">
+        </div>
+
+        <!-- Voice Speed Slider -->
+        <div class="setting-group">
+          <div class="slider-header">
+            <label class="setting-label" for="rateSlider">Ash Voice Speed</label>
+            <span class="slider-value" id="rateVal">1.05x</span>
+          </div>
+          <input type="range" id="rateSlider" min="0.7" max="1.5" step="0.05" value="1.05" class="range-slider">
+        </div>
+
+        <!-- Voice Test Button -->
+        <div class="modal-actions">
+          <button type="button" class="secondary-btn" id="testVoiceBtn">Test Ash Voice 🔊</button>
+          <button type="button" class="primary-btn" id="saveSettingsBtn">Save & Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Element for Pokémon Cries -->
+  <audio id="cryAudio" preload="auto"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
