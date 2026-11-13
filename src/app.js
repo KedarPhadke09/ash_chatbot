@@ -213,7 +213,9 @@ app.post('/api/chat', async (req, res) => {
 
   if (apiKey) {
     try {
-      const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+      // Use Gemini Free Tier models: gemini-1.5-flash or gemini-2.0-flash
+      const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+      let geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
       const contents = [
         {
@@ -238,7 +240,7 @@ app.post('/api/chat', async (req, res) => {
         parts: [{ text: message }]
       });
 
-      const geminiRes = await fetch(geminiEndpoint, {
+      let geminiRes = await fetch(geminiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -249,6 +251,22 @@ app.post('/api/chat', async (req, res) => {
           }
         })
       });
+
+      // If model name fails, try fallback to gemini-1.5-flash
+      if (!geminiRes.ok && modelName !== 'gemini-1.5-flash') {
+        const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        geminiRes = await fetch(fallbackEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 1000
+            }
+          })
+        });
+      }
 
       if (!geminiRes.ok) {
         const errorData = await geminiRes.text();
