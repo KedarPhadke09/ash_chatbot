@@ -155,7 +155,26 @@ const OFFLINE_KNOWLEDGE = [
     keywords: ['team', 'strongest', 'best'],
     pokemon: 'pikachu',
     reply: "My World Championship Masters Eight winning team was: Pikachu (with Z-Ring and Gigantamax Cap), Dragonite, Gengar (Gigantamax), Lucario (Mega Evolution), Sirfetch'd, and Dracovish! Together we defeated Steven, Cynthia, and Leon to become the World Monarch! What kind of team are you building for your adventure? [POKEMON: pikachu]"
+  },
+  {
+    keywords: ['hi', 'hello', 'hey', 'sup', 'yo', 'greetings'],
+    reply: "Hey there! Ash Ketchum here, ready for a Pokémon battle or strategy session! What Pokémon or battle moves are you curious about today?"
+  },
+  {
+    keywords: ['how are you', 'how r u', 'how do you do'],
+    reply: "Pikachu and I are feeling pumped and ready for our next championship battle! How are you and your Pokémon doing?"
+  },
+  {
+    keywords: ['who are you', 'your name', 'ash ketchum'],
+    reply: "I'm Ash Ketchum from Pallet Town! With Pikachu and my Pokémon companions across Kanto to Paldea, I became the Pokémon World Monarch. Ask me any question about Pokémon lore, battle mechanics, or stats!"
   }
+];
+
+const RANDOM_ASH_REPLIES = [
+  "That's awesome! Pikachu and I are always ready for a new Pokémon challenge. What battle strategy or Pokémon do you want to explore next?",
+  "Every Pokémon journey is full of surprises! Tell me which Pokémon is on your team, and let's check its battle stats and typing!",
+  "To be the very best, you gotta understand both passion and battle mechanics! Ask me about any Pokémon's moves, base stats, or type counters!",
+  "Alright, let's keep the adventure going! What Pokémon matchup or competitive strategy should we break down?"
 ];
 
 const COMMON_POKEMON = [
@@ -195,7 +214,74 @@ function getSmartOfflineReply(userMsg) {
     return `Alright trainer, let me pull up the Pokédex data on ${poke.toUpperCase()}! It has some truly incredible battle traits and lore across the Pokémon world. Check out the live Pokédex radar and stats card right beside us! [POKEMON: ${poke}]`;
   }
 
-  return "Hey there! I'm Ash Ketchum, Pokémon World Monarch! Ask me about any Pokémon (like Charizard, Mewtwo, Gengar, Rayquaza), battle strategies, competitive IV/EV spreads, anime trivia, or type counters! (Tip: You can also enter a free Google Gemini API Key in Settings for unlimited live AI dialogue!)";
+  return RANDOM_ASH_REPLIES[Math.floor(Math.random() * RANDOM_ASH_REPLIES.length)];
+}
+
+// Function to invoke Gemini models with seamless fallback (gemini-3.8-flash -> gemini-2.5-flash -> gemini-2.0-flash -> gemini-1.5-flash)
+async function callGemini(apiKey, contents, preferredModel = 'gemini-3.8-flash') {
+  const modelsToTry = [
+    preferredModel,
+    'gemini-3.8-flash',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash'
+  ];
+
+  const uniqueModels = [...new Set(modelsToTry.filter(Boolean))];
+  let lastError = null;
+
+  for (const model of uniqueModels) {
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const payload = {
+        contents,
+        generationConfig: {
+          maxOutputTokens: 1000
+        }
+      };
+
+      // In Gemini 3.x, temperature is deprecated; only pass for earlier versions
+      if (!model.startsWith('gemini-3')) {
+        payload.generationConfig.temperature = 0.7;
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          return { text, modelUsed: model };
+        }
+      }
+
+      const errorText = await res.text();
+      console.warn(`Gemini (${model}) returned HTTP ${res.status}:`, errorText);
+
+      if (res.status === 400 && errorText.includes('API_KEY_INVALID')) {
+        throw new Error('API_KEY_INVALID');
+      }
+      if (res.status === 403) {
+        throw new Error(`API_FORBIDDEN: ${errorText}`);
+      }
+      if (res.status === 429) {
+        throw new Error('QUOTA_EXHAUSTED');
+      }
+
+      lastError = new Error(`Model ${model} failed with ${res.status}: ${errorText}`);
+    } catch (err) {
+      if (err.message === 'API_KEY_INVALID' || err.message === 'QUOTA_EXHAUSTED' || err.message.startsWith('API_FORBIDDEN')) {
+        throw err;
+      }
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error('All Gemini models failed');
 }
 
 // POST /api/chat - Ash AI chat
@@ -206,16 +292,20 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const apiKey = userApiKey || process.env.GEMINI_API_KEY;
+  const cleanUserKey = typeof userApiKey === 'string' ? userApiKey.trim() : '';
+  const apiKey = cleanUserKey ||
+                 process.env.GEMINI_API_KEY ||
+                 process.env.GOOGLE_API_KEY ||
+                 process.env.VITE_GEMINI_API_KEY ||
+                 process.env.GEMINI_KEY ||
+                 '';
 
   let responseText = "";
   let mentionedPokemon = null;
 
   if (apiKey) {
     try {
-      // Use Gemini Free Tier models: gemini-1.5-flash or gemini-2.0-flash
-      const modelName = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-      let geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+      const preferredModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
       const contents = [
         {
@@ -240,45 +330,17 @@ app.post('/api/chat', async (req, res) => {
         parts: [{ text: message }]
       });
 
-      let geminiRes = await fetch(geminiEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000
-          }
-        })
-      });
-
-      // If model name fails, try fallback to gemini-1.5-flash
-      if (!geminiRes.ok && modelName !== 'gemini-1.5-flash') {
-        const fallbackEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        geminiRes = await fetch(fallbackEndpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents,
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 1000
-            }
-          })
-        });
-      }
-
-      if (!geminiRes.ok) {
-        const errorData = await geminiRes.text();
-        console.error("Gemini API error:", errorData);
-        throw new Error(`Gemini API error: ${geminiRes.status}`);
-      }
-
-      const geminiData = await geminiRes.json();
-      responseText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "Pika?! Something went wrong with my transmission!";
+      const { text, modelUsed } = await callGemini(apiKey, contents, preferredModel);
+      responseText = text;
     } catch (err) {
-      console.warn("Falling back to smart offline brain due to Gemini error:", err.message);
-      responseText = getSmartOfflineReply(message);
+      console.warn("Gemini execution error:", err.message);
+      if (err.message === 'API_KEY_INVALID') {
+        responseText = "Pika?! Trainer, it looks like your Gemini API key is invalid! Please verify the key you entered in Settings or in your Vercel Environment Variables.";
+      } else if (err.message === 'QUOTA_EXHAUSTED') {
+        responseText = "Whoa, that was a flurry of attacks! The Gemini API rate limit or quota has been reached. Give it a brief moment and ask again!";
+      } else {
+        responseText = getSmartOfflineReply(message);
+      }
     }
   } else {
     responseText = getSmartOfflineReply(message);
@@ -316,9 +378,16 @@ app.get('/api/pokemon/:name', async (req, res) => {
 
 // GET /api/status - Server health & config
 app.get('/api/status', (req, res) => {
+  const hasKey = Boolean(
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    process.env.VITE_GEMINI_API_KEY ||
+    process.env.GEMINI_KEY
+  );
   res.json({
     status: 'ok',
-    hasEnvApiKey: Boolean(process.env.GEMINI_API_KEY)
+    hasEnvApiKey: hasKey,
+    model: process.env.GEMINI_MODEL || 'gemini-3.8-flash'
   });
 });
 

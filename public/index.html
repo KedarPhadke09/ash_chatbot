@@ -310,9 +310,20 @@
             type="password" 
             id="apiKeyInput" 
             class="setting-input" 
-            placeholder="AIzaSy... (Leave empty to use built-in offline brain or server key)"
+            placeholder="AIzaSy... (Leave empty to use Vercel server key)"
           />
-          <p class="setting-hint"><strong>100% Free:</strong> Gemini 1.5 Flash has a free tier with 1,500 requests/day and no credit card required! Get your free key at <a href="https://aistudio.google.com/" target="_blank" rel="noopener">Google AI Studio</a>.</p>
+          <p class="setting-hint" id="serverKeyNotice">
+            <strong>Server Key Status:</strong> Checking Vercel server...
+          </p>
+        </div>
+
+        <!-- Model Status Display -->
+        <div class="setting-group">
+          <label class="setting-label">Default LLM Model</label>
+          <div style="font-family:'Chakra Petch',sans-serif; color:#ffcb05; font-size:14px; font-weight:700; padding:4px 0;">
+            ⚡ Gemini 3.8 Flash
+          </div>
+          <p class="setting-hint">Ash is powered by Gemini 3.8 Flash with automatic fallback for high-speed, intelligent Pokémon conversations.</p>
         </div>
 
         <!-- Voice Selector Section -->

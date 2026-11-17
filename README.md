@@ -20,9 +20,9 @@ An interactive, voice-enabled Pokémon specialist chatbot powered by **Ash Ketch
   - **Base Stats Radar Bars**: HP, Attack, Defense, Sp. Atk, Sp. Def, Speed & Base Stat Total (BST).
   - Official Type Badges, Height, Weight, Abilities (including Hidden Abilities), and Pokédex lore.
 - **🧠 Hybrid AI Intelligence**:
-  - Direct integration with **Google Gemini API** (`gemini-2.5-flash`).
-  - Enter your API key in the UI Settings modal or in `.env`.
-  - Built-in **Smart Offline Pokédex Brain** so it works immediately out of the box even without an API key!
+  - Direct integration with **Google Gemini API** (`gemini-3.8-flash` default with automatic cascading fallback to `gemini-2.5-flash`, `gemini-2.0-flash`, and `gemini-1.5-flash`).
+  - Enter your API key in the UI Settings modal or as `GEMINI_API_KEY` in Vercel.
+  - Built-in **Smart Offline Pokédex Brain** with varied, authentic Ash dialogue when offline.
 - **⚡ 100% Vercel & Cloud Ready**:
   - Pre-configured with `vercel.json` and serverless API handlers in `/api` for instant 1-click deployment.
 

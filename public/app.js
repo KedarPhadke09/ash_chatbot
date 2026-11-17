@@ -259,14 +259,18 @@ async function handleSendMessage(customText) {
   const loadingBubble = appendLoadingBubble();
 
   try {
+    const payload = {
+      message: text,
+      history: state.history
+    };
+    if (state.userApiKey && state.userApiKey.trim()) {
+      payload.userApiKey = state.userApiKey.trim();
+    }
+
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        message: text,
-        history: state.history,
-        userApiKey: state.userApiKey
-      })
+      body: JSON.stringify(payload)
     });
 
     if (!res.ok) {
@@ -572,13 +576,39 @@ testVoiceBtn.addEventListener('click', () => {
 });
 
 saveSettingsBtn.addEventListener('click', () => {
-  state.userApiKey = apiKeyInput.value.trim();
-  localStorage.setItem('ash_gemini_api_key', state.userApiKey);
+  const trimmed = apiKeyInput.value.trim();
+  state.userApiKey = trimmed;
+  if (trimmed) {
+    localStorage.setItem('ash_gemini_api_key', trimmed);
+  } else {
+    localStorage.removeItem('ash_gemini_api_key');
+  }
   settingsModal.classList.add('hidden');
 });
+
+// Check Vercel server configuration status
+async function checkServerStatus() {
+  try {
+    const res = await fetch('/api/status');
+    if (res.ok) {
+      const data = await res.json();
+      const notice = document.getElementById('serverKeyNotice');
+      if (notice) {
+        if (data.hasEnvApiKey) {
+          notice.innerHTML = `<span style="color:#4ade80;">✔ <strong>Vercel Server Key is ACTIVE</strong> (Model: <code>${data.model || 'gemini-3.8-flash'}</code>). You can leave the key field above empty!</span>`;
+        } else {
+          notice.innerHTML = `<span style="color:#f59e0b;">ℹ️ No server API key detected yet. If you added <code>GEMINI_API_KEY</code> in Vercel, make sure you <strong>Redeployed</strong> the project. Or enter a key above to use right now!</span>`;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Could not fetch server status:", err);
+  }
+}
 
 // Init on Page Load
 window.addEventListener('DOMContentLoaded', () => {
   initSpeechSynthesis();
   initSpeechRecognition();
+  checkServerStatus();
 });
